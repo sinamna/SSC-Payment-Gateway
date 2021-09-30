@@ -1,0 +1,14 @@
+version: "3"
+services:
+  pg_siloo:
+    image: docker.bale.ai/molana/bale-postgresql:9.5.22
+    container_name: pg_payment
+    restart: always
+    ports:
+      - 5433:5432
+    environment:
+      - POSTGRES_USER=test
+      - POSTGRES_PASSWORD=testpass
+      - POSTGRES_DB=test
+    volumes:
+      - ./volumes/docker/pg_siloo/postgres/:/var/lib/postgresql/data/
