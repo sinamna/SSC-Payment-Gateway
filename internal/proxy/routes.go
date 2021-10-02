@@ -14,13 +14,9 @@ func NewTransactionHandler(ctx *gin.Context){
 
 	newCreateTransactionReq.GenerateID()
 	//saving to db
-	trxResponse, idPayErr, err := paymentHandler.MakeTransaction(&newCreateTransactionReq)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError,gin.H{"error": err})
-		return
-	}
-	if idPayErr != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": idPayErr.ErrorMessage})
+	trxResponse, statusCode, err := paymentHandler.MakeTransaction(&newCreateTransactionReq)
+	if err != nil || statusCode != 201{
+		ctx.JSON(statusCode,gin.H{"error": err.Error()})
 		return
 	}
 

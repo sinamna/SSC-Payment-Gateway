@@ -23,9 +23,9 @@ func NewPaymentHandler() *PaymentHandler {
 	return &PaymentHandler{}
 }
 
-func (ph *PaymentHandler) MakeTransaction(trx *models.CreateTransactionReq) (*models.CreateTransactionResp,*models.IDPayErr,error){
+func (ph *PaymentHandler) MakeTransaction(trx *models.CreateTransactionReq) (*models.CreateTransactionResp,int,error){
 	if trx.Amount ==0 || trx.Callback == "" || trx.OrderID == "" {
-		return nil, nil, errors.New("missing required fields")
+		return nil, http.StatusBadRequest, errors.New("missing required fields")
 	}
 
 	url := "https://api.idpay.ir/v1.1/payment"
@@ -40,7 +40,7 @@ func (ph *PaymentHandler) MakeTransaction(trx *models.CreateTransactionReq) (*mo
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil{
 		fmt.Println(err)
-		return nil, nil, err
+		return nil,http.StatusInternalServerError, err
 	}
 	defer resp.Body.Close()
 	body, _ := ioutil.ReadAll(resp.Body)
@@ -49,10 +49,11 @@ func (ph *PaymentHandler) MakeTransaction(trx *models.CreateTransactionReq) (*mo
 	var idPayErr models.IDPayErr
 	if resp.Status == "201"{
 		_ = json.Unmarshal(body,&transactionResp)
+		return &transactionResp, resp.StatusCode, nil
 	}else{
 		_ = json.Unmarshal(body,&idPayErr)
+		return nil, resp.StatusCode, errors.New(idPayErr.ErrorMessage)
 	}
-	return &transactionResp, &idPayErr, nil
 }
 
 func (ph *PaymentHandler) VerifyTransaction (verifyReq *models.TransactionReq)([]byte, int, error){
