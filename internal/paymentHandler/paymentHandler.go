@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/sinamna/PaymentGateway/internal/models"
 	"github.com/valyala/fasthttp"
 	"io/ioutil"
@@ -39,7 +38,6 @@ func (ph *PaymentHandler) MakeTransaction(trx *models.CreateTransactionReq) (*mo
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil{
-		fmt.Println(err)
 		return nil,http.StatusInternalServerError, err
 	}
 	defer resp.Body.Close()
@@ -47,7 +45,7 @@ func (ph *PaymentHandler) MakeTransaction(trx *models.CreateTransactionReq) (*mo
 
 	var transactionResp models.CreateTransactionResp
 	var idPayErr models.IDPayErr
-	if resp.Status == "201"{
+	if resp.StatusCode == http.StatusCreated{
 		_ = json.Unmarshal(body,&transactionResp)
 		return &transactionResp, resp.StatusCode, nil
 	}else{
