@@ -1,7 +1,7 @@
 version: "3"
 services:
-  pg_siloo:
-    image: docker.bale.ai/molana/bale-postgresql:9.5.22
+  pg_payment:
+    image: postgres
     container_name: pg_payment
     restart: always
     ports:
